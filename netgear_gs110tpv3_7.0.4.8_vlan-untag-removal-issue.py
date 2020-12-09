@@ -44,7 +44,7 @@ def create_snmp_hex_bitmask(ports, size=40):
 
 #------------------------------------------------------------------------------------
 
-def main(vlan_id=1001, port=1, host="10.30.2.21", community="very-private", device="GS110TPv3"):
+def main(vlan_id=None, port=None, host=None, community=None, device=None):
     new_untagged_ports = {1} # only port 1 is suspect to this test
 
     load("SNMPv2-MIB")
@@ -60,6 +60,7 @@ def main(vlan_id=1001, port=1, host="10.30.2.21", community="very-private", devi
         print(f"This test script expects a clean state. Remove vlan {vlan_id} completely first. VLAN PVID on port 1 should be 1 for this test")
         exit(-1)
 
+    # Creating VLAN Id from scratch
     print(f"Creating VLAN: {vlan_id}")
     m.dot1qVlanStaticRowStatus[vlan_id] = "createAndWait"
     m.dot1qVlanStaticName[vlan_id] = f"vlan {vlan_id}"
@@ -74,6 +75,7 @@ def main(vlan_id=1001, port=1, host="10.30.2.21", community="very-private", devi
 
         for port in new_untagged_ports:
             if port in current_untagged:
+                print(f"Removing egress port (and untagged flag) {port} from VLAN {current_vlan}")
                 current_egress.remove(port)
                 current_untagged.remove(port)
 
@@ -91,8 +93,8 @@ def main(vlan_id=1001, port=1, host="10.30.2.21", community="very-private", devi
                 current_untagged, current_size
             )
 
-            assert prev_egress_ports != m.dot1qVlanStaticEgressPorts[current_vlan]
-            assert prev_untagged_ports != m.dot1qVlanStaticUntaggedPorts[current_vlan]
+            #assert prev_egress_ports != m.dot1qVlanStaticEgressPorts[current_vlan]
+            #assert prev_untagged_ports != m.dot1qVlanStaticUntaggedPorts[current_vlan]
 
 
     # adding new vlan id (this works fine)
@@ -102,4 +104,6 @@ def main(vlan_id=1001, port=1, host="10.30.2.21", community="very-private", devi
 
     print("Done - check on the config website if VLAN ID 1 is still assigned to port 1.")
 
-main()
+# ----------------------------------------------------------------------------
+    
+main(vlan_id=1001, port=1, host="10.30.2.21", community="very-private", device="GS110TPv3")
